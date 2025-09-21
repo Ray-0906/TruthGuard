@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  multi-agent-verification:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: multi-agent-verification-system
+    ports:
+      - "3000:3000"  # Telegram bot server
+    environment:
+      # Telegram Bot Configuration
+      - BOT_TOKEN=${BOT_TOKEN}
+      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=3000
+      
+      # Security Settings
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-900000}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS:-100}
+      - MAX_MESSAGE_LENGTH=${MAX_MESSAGE_LENGTH:-4096}
+      
+      # Feature Flags
+      - ENABLE_WEBHOOK=${ENABLE_WEBHOOK:-false}
+      - WEBHOOK_URL=${WEBHOOK_URL:-}
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET:-}
+      
+      # Logging
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - DEBUG=${DEBUG:-false}
+    
+    volumes:
+      # Mount logs directory for persistence
+      - ./logs:/app/logs
+      # Mount config for easy updates
+      - ./telegram-bot/.env:/app/telegram-bot/.env:ro
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    networks:
+      - verification-network
+
+  # Optional: Add a reverse proxy for production
+  nginx:
+    image: nginx:alpine
+    container_name: verification-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - multi-agent-verification
+    networks:
+      - verification-network
+    profiles:
+      - production
+
+networks:
+  verification-network:
+    driver: bridge
+
+volumes:
+  logs:
+    driver: local

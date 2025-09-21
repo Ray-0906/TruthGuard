@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ Multi-Agent AI Verification System</title>
+    <meta name="description" content="Advanced AI-powered content verification using specialized agents to combat misinformation">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="header-title">🛡️ Multi-Agent AI Verification System</h1>
+                <p class="header-subtitle">Advanced AI-powered content verification using specialized agents to combat misinformation</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Input Section -->
+            <section class="input-section">
+                <div class="card">
+                    <h2 class="section-title">📝 Content to Verify</h2>
+                    <div class="input-container">
+                        <textarea 
+                            id="contentInput" 
+                            class="content-input" 
+                            placeholder="Enter text, URLs, or describe media content for verification..."
+                            aria-label="Content to verify"
+                            rows="4"
+                        ></textarea>
+                        <div class="input-actions">
+                            <button id="analyzeBtn" class="btn btn-primary" aria-describedby="analyze-help">
+                                <span class="btn-icon">🔍</span>
+                                Analyze Content
+                            </button>
+                            <button id="clearBtn" class="btn btn-secondary">
+                                <span class="btn-icon">🔄</span>
+                                Clear
+                            </button>
+                        </div>
+                        <div id="analyze-help" class="help-text">
+                            Our AI agents will analyze your content for accuracy, fraud, and manipulation
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Demo Section -->
+            <section class="demo-section">
+                <div class="card">
+                    <h3 class="section-subtitle">🎯 Quick Demo Scenarios</h3>
+                    <div class="demo-buttons">
+                        <button class="demo-btn" data-scenario="medical-misinfo">
+                            <span class="demo-icon">🚨</span>
+                            <span class="demo-text">Fake News Example</span>
+                        </button>
+                        <button class="demo-btn" data-scenario="phishing">
+                            <span class="demo-icon">🎣</span>
+                            <span class="demo-text">Phishing Example</span>
+                        </button>
+                        <button class="demo-btn" data-scenario="legitimate">
+                            <span class="demo-icon">✅</span>
+                            <span class="demo-text">Legitimate News</span>
+                        </button>
+                        <button class="demo-btn" data-scenario="scam">
+                            <span class="demo-icon">⚠️</span>
+                            <span class="demo-text">Scam Example</span>
+                        </button>
+                        <button class="demo-btn" data-scenario="mixed">
+                            <span class="demo-icon">❓</span>
+                            <span class="demo-text">Mixed Content</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Processing Section -->
+            <section class="processing-section" id="processingSection" style="display: none;">
+                <div class="card">
+                    <h2 class="section-title">🧠 Agent Processing Status</h2>
+                    
+                    <!-- Planner Node -->
+                    <div class="planner-node" id="plannerNode">
+                        <div class="planner-content">
+                            <div class="planner-icon">🧠</div>
+                            <div class="planner-info">
+                                <h3>Content Planner</h3>
+                                <p id="plannerStatus">Analyzing content type and selecting appropriate agents...</p>
+                            </div>
+                            <div class="planner-spinner"></div>
+                        </div>
+                    </div>
+
+                    <!-- Agent Grid -->
+                    <div class="agents-grid" id="agentsGrid">
+                        <!-- Agent cards will be dynamically populated -->
+                    </div>
+
+                    <!-- Processing Progress -->
+                    <div class="processing-progress">
+                        <div class="progress-header">
+                            <span>Overall Progress</span>
+                            <span id="progressPercentage">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <div class="card">
+                    <h2 class="section-title">📊 Verification Results</h2>
+                    
+                    <!-- Overall Verdict -->
+                    <div class="overall-verdict" id="overallVerdict">
+                        <!-- Dynamic content -->
+                    </div>
+
+                    <!-- Individual Agent Results -->
+                    <div class="agent-results" id="agentResults">
+                        <!-- Dynamic content -->
+                    </div>
+
+                    <!-- Processing Summary -->
+                    <div class="processing-summary" id="processingSummary">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2025 Multi-Agent AI Verification System - Prototype for Educational Purposes</p>
+                <p class="footer-disclaimer">This is a demonstration prototype. Results are simulated for educational purposes.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>Initializing AI Agents...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/agents.js"></script>
+    <script src="assets/js/scenarios.js"></script>
+    <script src="assets/js/animations.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

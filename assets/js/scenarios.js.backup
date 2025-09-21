@@ -1,0 +1,403 @@
+/**
+ * ================================================================
+ * MULTI-AGENT AI VERIFICATION SYSTEM - SCENARIO MANAGEMENT
+ * ================================================================
+ * 
+ * File: scenarios.js
+ * Purpose: Demo scenarios and content analysis scenario management
+ * 
+ * This module contains:
+ * - 5 comprehensive demo scenarios with realistic responses
+ * - ScenarioManager utility class for scenario handling
+ * - Fallback analysis for custom user content
+ * - Evidence generation and source citation systems
+ * 
+ * Demo Scenarios:
+ * 1. 🚨 Medical Misinformation (News + Fact agents)
+ * 2. 🎣 Phishing Attempt (Scam + Phishing agents)
+ * 3. ✅ Legitimate News (News + Fact agents)
+ * 4. ❓ Mixed Content (Fact + Phishing agents)
+ * 5. ⚠️ Advance Fee Fraud (Scam agent)
+ * 
+ * Each scenario includes:
+ * - Realistic content examples
+ * - Agent-specific responses with evidence
+ * - Confidence levels and verdicts
+ * - Professional source citations
+ * - Actionable user recommendations
+ * 
+ * Dependencies: agents.js (AgentSelector)
+ * Used by: main.js, animations.js
+ * 
+ * @version 1.0.0
+ * @author Multi-Agent AI Verification Team
+ * @since 2025-09-21
+ * ================================================================
+ */
+
+// ===== PREDEFINED TEST SCENARIOS =====
+
+/**
+ * Comprehensive test scenarios demonstrating the multi-agent verification system
+ * Each scenario includes realistic content, agent responses, and detailed evidence
+ * 
+ * Scenario Structure:
+ * - id: Unique identifier
+ * - title: Human-readable scenario name
+ * - content: The text/content to be verified
+ * - activeAgents: Array of agent IDs that should process this content
+ * - verdict: Overall system conclusion (TRUE, FALSE, MALICIOUS, SCAM, UNVERIFIED)
+ * - confidence: Overall confidence level (0-100)
+ * - verdictType: CSS class identifier for styling
+ * - summary: Brief explanation of findings
+ * - recommendation: Actionable advice for users
+ * - agentResults: Individual agent responses with evidence and sources
+ */
+const DEMO_SCENARIOS = {
+    /**
+     * Scenario 1: Medical Misinformation Detection
+     * Demonstrates how agents identify false medical claims
+     * Tests news verification and fact-checking capabilities
+     */
+    'medical-misinfo': {
+        id: 'medical-misinfo',
+        title: 'Medical Misinformation',
+        content: 'Breaking: Scientists discover cure for diabetes using AI technology! Revolutionary treatment shows 100% success rate in clinical trials.',
+        activeAgents: ['news', 'fact'], // News and fact verification agents
+        verdict: 'FALSE',
+        confidence: 95, // High confidence due to clear contradictory evidence
+        verdictType: 'false',
+        summary: 'No credible scientific evidence found for this claim. No peer-reviewed studies support a 100% cure rate for diabetes.',
+        recommendation: 'Do not share this content. Consult healthcare professionals for medical information.',
+        agentResults: {
+            news: {
+                verdict: 'FALSE',
+                confidence: 92,
+                evidence: [
+                    'No reports found in Reuters, AP News, or BBC Health',
+                    'Claim not covered by credible medical journals',
+                    'No official statements from diabetes research organizations',
+                    'Similar false claims detected in misinformation database'
+                ],
+                sources: ['Reuters Health', 'AP Medical News', 'BBC Health', 'Snopes Medical']
+            },
+            fact: {
+                verdict: 'FALSE',
+                confidence: 98,
+                evidence: [
+                    'Searched 2.1M scientific papers - no matching research found',
+                    'No FDA approvals for AI-based diabetes cures',
+                    'Current diabetes research shows gradual progress, not breakthrough cures',
+                    '100% success rate claim contradicts medical research standards'
+                ],
+                sources: ['PubMed', 'Nature Medicine', 'Diabetes Care Journal', 'FDA Database']
+            }
+        }
+    },
+
+    /**
+     * Scenario 2: Phishing Attack Detection
+     * Shows how the system identifies malicious URLs and social engineering
+     * Tests scam detection and phishing link analysis capabilities
+     */
+    'phishing': {
+        id: 'phishing',
+        title: 'Phishing Attempt',
+        content: 'URGENT: Your bank account has been compromised! Immediate action required. Click here to secure your account: https://secure-bank-update.fake/login?urgent=true',
+        activeAgents: ['scam', 'phishing'], // Scam detection and phishing analysis
+        verdict: 'MALICIOUS',
+        confidence: 96, // Very high confidence for obvious phishing patterns
+        verdictType: 'malicious',
+        summary: 'Classic phishing attempt detected. Fraudulent URL designed to steal banking credentials.',
+        recommendation: 'DO NOT CLICK the link. Report to your bank\'s official fraud department immediately.',
+        agentResults: {
+            scam: {
+                verdict: 'MALICIOUS',
+                confidence: 94,
+                evidence: [
+                    'Urgency language designed to create panic ("URGENT", "Immediate action")',
+                    'Impersonates legitimate financial institution',
+                    'Requests sensitive login credentials',
+                    'Uses fear tactics to bypass critical thinking'
+                ],
+                sources: ['FTC Fraud Database', 'Anti-Phishing Working Group', 'CISA Security Alerts']
+            },
+            phishing: {
+                verdict: 'MALICIOUS',
+                confidence: 98,
+                evidence: [
+                    'Domain "secure-bank-update.fake" is not legitimate',
+                    'Domain registered only 2 days ago',
+                    'SSL certificate from untrusted issuer',
+                    'URL matches known phishing patterns in PhishTank database',
+                    'No legitimate bank uses "fake" TLD'
+                ],
+                sources: ['PhishTank', 'Google Safe Browsing', 'VirusTotal', 'Whois Database']
+            }
+        }
+    },
+
+    'legitimate': {
+        id: 'legitimate',
+        title: 'Legitimate News',
+        content: 'NASA announces new Artemis mission to Mars scheduled for 2026, building on successful lunar program achievements.',
+        activeAgents: ['news', 'fact'],
+        verdict: 'TRUE',
+        confidence: 87,
+        verdictType: 'true',
+        summary: 'Verified legitimate news content. Information aligns with official NASA announcements and space program timelines.',
+        recommendation: 'Content appears credible and safe to share. Cross-reference with official NASA sources for updates.',
+        agentResults: {
+            news: {
+                verdict: 'VERIFIED',
+                confidence: 85,
+                evidence: [
+                    'Confirmed by official NASA press releases',
+                    'Reported by multiple credible space news outlets',
+                    'Aligns with established Artemis program timeline',
+                    'Quotes match official NASA statements'
+                ],
+                sources: ['NASA Official', 'Space News', 'SpaceX Updates', 'ESA Cooperation']
+            },
+            fact: {
+                verdict: 'VERIFIED',
+                confidence: 89,
+                evidence: [
+                    'Mars mission timeline consistent with NASA\'s published roadmap',
+                    'Artemis program has documented lunar mission successes',
+                    'Technical feasibility supported by current space technology',
+                    '2026 timeframe aligns with inter-planetary launch windows'
+                ],
+                sources: ['NASA Technical Reports', 'JPL Mission Planning', 'Space Policy Institute']
+            }
+        }
+    },
+
+    'mixed': {
+        id: 'mixed',
+        title: 'Mixed Content',
+        content: 'New study reveals climate change causes 50% of all wildfires globally! Scientists urge immediate action. Learn more: https://climate-truth.info/wildfire-crisis',
+        activeAgents: ['fact', 'phishing'],
+        verdict: 'UNVERIFIED',
+        confidence: 65,
+        verdictType: 'unverified',
+        summary: 'Mixed credibility. Wildfire-climate connection is real, but specific statistics are unverified and website is suspicious.',
+        recommendation: 'Verify claims through official climate research sources before sharing. Avoid clicking the provided link.',
+        agentResults: {
+            fact: {
+                verdict: 'SUSPICIOUS',
+                confidence: 60,
+                evidence: [
+                    'Climate change does contribute to wildfire risk',
+                    'Specific "50%" statistic not found in peer-reviewed research',
+                    'Legitimate wildfire studies show varied percentages by region',
+                    'Claim oversimplifies complex climate-fire relationships'
+                ],
+                sources: ['IPCC Climate Reports', 'Nature Climate Change', 'NOAA Fire Weather']
+            },
+            phishing: {
+                verdict: 'SUSPICIOUS',
+                confidence: 70,
+                evidence: [
+                    'Domain "climate-truth.info" not associated with scientific institutions',
+                    'Website lacks proper SSL security indicators',
+                    'Domain registered anonymously through privacy service',
+                    'Site design mimics legitimate climate organizations'
+                ],
+                sources: ['Domain Reputation Check', 'SSL Labs', 'Website Safety Scanner']
+            }
+        }
+    },
+
+    'scam': {
+        id: 'scam',
+        title: 'Advance Fee Fraud',
+        content: 'CONGRATULATIONS! You have been selected as the winner of our international lottery! Prize amount: $1,000,000 USD. To claim your prize, please send $500 processing fee to our secure account. Time sensitive offer!',
+        activeAgents: ['scam'],
+        verdict: 'SCAM',
+        confidence: 99,
+        verdictType: 'scam',
+        summary: 'Classic advance fee fraud (419 scam). No legitimate lottery requires upfront payment to claim prizes.',
+        recommendation: 'DO NOT send money. Report this scam to relevant authorities. Block sender immediately.',
+        agentResults: {
+            scam: {
+                verdict: 'SCAM',
+                confidence: 99,
+                evidence: [
+                    'Classic advance fee fraud pattern detected',
+                    'No legitimate lottery requires upfront payment',
+                    'Uses pressure tactics ("Time sensitive offer")',
+                    'Unrealistic prize amount without participation',
+                    'Poor grammar and formatting typical of scam messages',
+                    'Matches 419 scam templates in fraud database'
+                ],
+                sources: ['FBI IC3 Database', 'FTC Scam Alerts', 'International Anti-Fraud Network', 'Consumer Protection Agency']
+            }
+        }
+    }
+};
+
+/**
+ * Scenario management utilities for handling demo scenarios and custom content analysis
+ * Provides methods for retrieving, validating, and generating verification scenarios
+ */
+class ScenarioManager {
+    /**
+     * Retrieves a specific demo scenario by ID
+     * @param {string} scenarioId - The unique identifier for the scenario
+     * @returns {Object|null} The scenario object or null if not found
+     */
+    static getScenario(scenarioId) {
+        return DEMO_SCENARIOS[scenarioId] || null;
+    }
+
+    /**
+     * Gets all available demo scenarios
+     * @returns {Object} Object containing all demo scenarios
+     */
+    static getAllScenarios() {
+        return DEMO_SCENARIOS;
+    }
+
+    /**
+     * Gets a list of all scenario IDs
+     * @returns {Array<string>} Array of scenario identifiers
+     */
+    static getScenarioList() {
+        return Object.keys(DEMO_SCENARIOS);
+    }
+
+    /**
+     * Selects a random demo scenario for testing purposes
+     * @returns {Object} A randomly selected scenario object
+     */
+    static getRandomScenario() {
+        const scenarios = Object.keys(DEMO_SCENARIOS);
+        const randomIndex = Math.floor(Math.random() * scenarios.length);
+        return DEMO_SCENARIOS[scenarios[randomIndex]];
+    }
+
+    /**
+     * Validates that a scenario object has all required properties
+     * @param {Object} scenario - The scenario object to validate
+     * @returns {boolean} True if scenario is valid, false otherwise
+     */
+    static validateScenario(scenario) {
+        const required = ['id', 'content', 'activeAgents', 'verdict', 'confidence', 'agentResults'];
+        return required.every(field => scenario.hasOwnProperty(field));
+    }
+
+    /**
+     * Creates a basic scenario structure for user-provided content
+     * Used when users input custom content for analysis
+     * @param {string} content - The user-provided content to analyze
+     * @returns {Object} A scenario object ready for processing
+     */
+    static createCustomScenario(content) {
+        const activeAgents = AgentSelector.determineActiveAgents(content);
+        
+        return {
+            id: 'custom',
+            title: 'Custom Analysis',
+            content: content,
+            activeAgents: activeAgents,
+            verdict: 'ANALYZING...',
+            confidence: 0,
+            verdictType: 'analyzing',
+            summary: 'Analysis in progress...',
+            recommendation: 'Please wait while our agents verify this content.',
+            agentResults: this.generatePlaceholderResults(activeAgents)
+        };
+    }
+
+    /**
+     * Generates placeholder results for agents during processing
+     * @param {Array<string>} activeAgents - Array of active agent IDs
+     * @returns {Object} Object with placeholder results for each agent
+     */
+    static generatePlaceholderResults(activeAgents) {
+        const results = {};
+        
+        activeAgents.forEach(agentId => {
+            results[agentId] = {
+                verdict: 'ANALYZING...',
+                confidence: 0,
+                evidence: ['Analysis in progress...'],
+                sources: ['Processing...']
+            };
+        });
+        
+        return results;
+    }
+
+    /**
+     * Generates fallback analysis results for custom content
+     * Uses simple heuristics when no predefined scenario exists
+     * @param {string} content - The content to analyze
+     * @returns {Object} A complete scenario with generated results
+     */
+    static generateFallbackAnalysis(content) {
+        const activeAgents = AgentSelector.determineActiveAgents(content);
+        const contentLower = content.toLowerCase();
+        
+        // Simple heuristics for demonstration
+        let verdict = 'UNVERIFIED';
+        let confidence = 65;
+        let verdictType = 'unverified';
+        
+        if (contentLower.includes('cure') || contentLower.includes('miracle') || contentLower.includes('100%')) {
+            verdict = 'SUSPICIOUS';
+            confidence = 75;
+            verdictType = 'suspicious';
+        }
+        
+        if (contentLower.includes('click') || contentLower.includes('urgent') || contentLower.includes('winner')) {
+            verdict = 'MALICIOUS';
+            confidence = 88;
+            verdictType = 'malicious';
+        }
+        
+        if (contentLower.includes('study') || contentLower.includes('research') || contentLower.includes('university')) {
+            verdict = 'NEEDS VERIFICATION';
+            confidence = 70;
+            verdictType = 'unverified';
+        }
+        
+        const agentResults = {};
+        activeAgents.forEach(agentId => {
+            const agent = AGENTS[agentId];
+            agentResults[agentId] = {
+                verdict: verdict,
+                confidence: confidence + Math.floor(Math.random() * 20) - 10, // Add some variance
+                evidence: [
+                    `Content analyzed using ${agent.name} algorithms`,
+                    'Limited verification data available for this content',
+                    'Recommend cross-checking with additional sources',
+                    'Analysis based on content patterns and heuristics'
+                ],
+                sources: ['Pattern Analysis', 'Content Heuristics', 'Automated Screening']
+            };
+        });
+        
+        return {
+            id: 'custom-analysis',
+            title: 'Custom Content Analysis',
+            content: content,
+            activeAgents: activeAgents,
+            verdict: verdict,
+            confidence: confidence,
+            verdictType: verdictType,
+            summary: `Content analyzed using automated heuristics. ${verdict.toLowerCase()} patterns detected.`,
+            recommendation: 'For comprehensive verification, consult multiple trusted sources and fact-checking organizations.',
+            agentResults: agentResults
+        };
+    }
+}
+
+// Export for use in other modules
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        DEMO_SCENARIOS,
+        ScenarioManager
+    };
+}
